@@ -49,7 +49,7 @@ So the following rule is just an example of how this concept might work:
 ```
 rule "Application checker"
 when
-    Time cron "0/1 0 0 ? * * *"
+    Time cron "0/1 * * ? * * *"
 then
     if (executeCommandLine("/bin/ps","aux","|","/bin/grep","[f]irefox","|","/usr/bin/wc","-l") > 0) {
         Firefox.postUpdate(ON)
