@@ -64,7 +64,7 @@ then
         Firefox.postUpdate(OFF)
     }
     
-    if (executeCommandLine("/bin/ps","aux,"|","/bin/grep","[V]irtualBox","|","/usr/bin/wc","-l") > 0) {
+    if (executeCommandLine("/bin/ps","aux","|","/bin/grep","[V]irtualBox","|","/usr/bin/wc","-l") > 0) {
         VirtualBox.postUpdate(ON)
     } else {
         VirtualBox.postUpdate(OFF)
@@ -97,7 +97,7 @@ then
         Firefox.postUpdate(OFF)
     }
     
-    if (executeCommandLine("/usr/bin/sshpass","-p","<password>","/usr/bin/ssh","-t","-o","StrictHostKeyChecking=no","<user>@<ip>","aux,"|","/bin/grep","[V]irtualBox","|","/usr/bin/wc","-l","2>","/dev/null") > 0) {
+    if (executeCommandLine("/usr/bin/sshpass","-p","<password>","/usr/bin/ssh","-t","-o","StrictHostKeyChecking=no","<user>@<ip>","aux","|","/bin/grep","[V]irtualBox","|","/usr/bin/wc","-l","2>","/dev/null") > 0) {
         VirtualBox.postUpdate(ON)
     } else {
         VirtualBox.postUpdate(OFF)
