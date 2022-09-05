@@ -34,13 +34,13 @@ At first you have to add following to your `/etc/openhab/misc/exec.whitelist` fi
 /bin/ps aux | /bin/grep [v]lc | /usr/bin/wc -l
 ```
 
-Off course you can run this over `SSH` and check if an application is running on a remote computer. Then as example `/bin/ps aux | /bin/grep [v]lc | /usr/bin/wc -l` will change to `/usr/bin/sshpass -p <password> /usr/bin/ssh -t -o StrictHostKeyChecking=no <user>@<ip> "/bin/ps aux | /bin/grep [v]lc | /usr/bin/wc -l"`. Then you have to replace `<user>` and `<password>` with the username and password of your remote computer. Also you have to replace `<ip>` with the ip address of your remote computer.
+Off course you can run this over `SSH` and check if an application is running on a remote computer. Then as example `/bin/ps aux | /bin/grep [v]lc | /usr/bin/wc -l` will change to `/usr/bin/sshpass -p <password> /usr/bin/ssh -tt -o StrictHostKeyChecking=no <user>@<ip> "/bin/ps aux | /bin/grep [v]lc | /usr/bin/wc -l" 2> /dev/null`. Then you have to replace `<user>` and `<password>` with the username and password of your remote computer. Also you have to replace `<ip>` with the ip address of your remote computer.
 
 ```
-/usr/bin/sshpass -p <password> /usr/bin/ssh -t -o StrictHostKeyChecking=no <user>@<ip> "/bin/ps aux | /bin/grep [f]irefox | /usr/bin/wc -l" 2> /dev/null
-/usr/bin/sshpass -p <password> /usr/bin/ssh -t -o StrictHostKeyChecking=no <user>@<ip> "/bin/ps aux | /bin/grep [V]irtualBox | /usr/bin/wc -l" 2> /dev/null
-/usr/bin/sshpass -p <password> /usr/bin/ssh -t -o StrictHostKeyChecking=no <user>@<ip> "/bin/ps aux | /bin/grep [k]odi | /usr/bin/wc -l" 2> /dev/null
-/usr/bin/sshpass -p <password> /usr/bin/ssh -t -o StrictHostKeyChecking=no <user>@<ip> "/bin/ps aux | /bin/grep [v]lc | /usr/bin/wc -l" 2> /dev/null
+/usr/bin/sshpass -p <password> /usr/bin/ssh -tt -o StrictHostKeyChecking=no <user>@<ip> "/bin/ps aux | /bin/grep [f]irefox | /usr/bin/wc -l" 2> /dev/null
+/usr/bin/sshpass -p <password> /usr/bin/ssh -tt -o StrictHostKeyChecking=no <user>@<ip> "/bin/ps aux | /bin/grep [V]irtualBox | /usr/bin/wc -l" 2> /dev/null
+/usr/bin/sshpass -p <password> /usr/bin/ssh -tt -o StrictHostKeyChecking=no <user>@<ip> "/bin/ps aux | /bin/grep [k]odi | /usr/bin/wc -l" 2> /dev/null
+/usr/bin/sshpass -p <password> /usr/bin/ssh -tt -o StrictHostKeyChecking=no <user>@<ip> "/bin/ps aux | /bin/grep [v]lc | /usr/bin/wc -l" 2> /dev/null
 ```
 
 With `ps aux` you can check which processes are running on a (remote) computer. With `grep` you can filter for a process. A better usage it to filter by using the application name like `vlc`. The problem is that using `grep` would also create a process. So if your application is not running there would be one process because you are using `grep` to look if there is a process or not. To fix it you can `grep` as example `[v]lc` instead of `vlc`. This means if `vlc` is not running there would be no response. If `vlc` is running there would be minimum one process because `vlc` can be running more than once at one time. At least we use `wc` for counting each line. Each process would have one line. So if `vlc` is not running with `wc` your result is `0`. If `vlc` is running with `wc` the result is the number of times `vlc` is running.
@@ -91,28 +91,44 @@ rule "Application checker"
 when
     Time cron "0/1 * * ? * * *"
 then
-    if (executeCommandLine("/usr/bin/sshpass","-p","<password>","/usr/bin/ssh","-t","-o","StrictHostKeyChecking=no","<user>@<ip>","aux","|","/bin/grep","[f]irefox","|","/usr/bin/wc","-l","2>","/dev/null") > 0) {
-        Firefox.postUpdate(ON)
-    } else {
+    var firefox = executeCommandLine(Duration.ofSeconds(1), "/usr/bin/sshpass","-p","<password>","/usr/bin/ssh","-tt","-o","StrictHostKeyChecking=no","<user>@<ip>","ps","aux","|","/bin/grep","[f]irefox","|","/usr/bin/wc","-l","2>","/dev/null")
+    firefox = firefox.replace("Connection to <ip> closed.", "")
+    firefox = firefox.replace("\r\n", "")
+    logInfo("application check firefox", firefox)
+    if (firefox == "0") {
         Firefox.postUpdate(OFF)
-    }
-    
-    if (executeCommandLine("/usr/bin/sshpass","-p","<password>","/usr/bin/ssh","-t","-o","StrictHostKeyChecking=no","<user>@<ip>","aux","|","/bin/grep","[V]irtualBox","|","/usr/bin/wc","-l","2>","/dev/null") > 0) {
-        VirtualBox.postUpdate(ON)
     } else {
+        Firefox.postUpdate(ON)
+    }
+
+    var virtualbox = executeCommandLine(Duration.ofSeconds(1), "/usr/bin/sshpass","-p","<password>","/usr/bin/ssh","-tt","-o","StrictHostKeyChecking=no","<user>@<ip>","ps","aux","|","/bin/grep","[V]irtualBox","|","/usr/bin/wc","-l","2>","/dev/null")
+    virtualbox = virtualbox.replace("Connection to <ip> closed.", "")
+    virtualbox = virtualbox.replace("\r\n", "")
+    logInfo("application check virtualbox", virtualbox)
+    if (virtualbox == "0") {
         VirtualBox.postUpdate(OFF)
+    } else {
+        VirtualBox.postUpdate(ON)
     }
     
-    if (executeCommandLine("/usr/bin/sshpass","-p","<password>","/usr/bin/ssh","-t","-o","StrictHostKeyChecking=no","<user>@<ip>","aux","|","/bin/grep","[k]odi","|","/usr/bin/wc","-l","2>","/dev/null") > 0) {
-        Kodi.postUpdate(ON)
+    var kodi = executeCommandLine(Duration.ofSeconds(1), "/usr/bin/sshpass","-p","<password>","/usr/bin/ssh","-tt","-o","StrictHostKeyChecking=no","<user>@<ip>","ps","aux","|","/bin/grep","[k]odi","|","/usr/bin/wc","-l","2>","/dev/null")
+    kodi = firefox.replace("Connection to <ip> closed.", "")
+    kodi = firefox.replace("\r\n", "")
+    logInfo("application check firefox", firefox)
+    if (kodi == "0") {
+        kodi.postUpdate(OFF)
     } else {
-        Kodi.postUpdate(OFF)
+        kodi.postUpdate(ON)
     }
-    
-    if (executeCommandLine("/usr/bin/sshpass","-p","<password>","/usr/bin/ssh","-t","-o","StrictHostKeyChecking=no","<user>@<ip>","aux","|","/bin/grep","[v]lc","|","/usr/bin/wc","-l","2>","/dev/null") > 0) {
-        VLC.postUpdate(ON)
-    } else {
+
+    var vlc = executeCommandLine(Duration.ofSeconds(1), "/usr/bin/sshpass","-p","<password>","/usr/bin/ssh","-tt","-o","StrictHostKeyChecking=no","<user>@<ip>","ps","aux","|","/bin/grep","[v]lc","|","/usr/bin/wc","-l","2>","/dev/null")
+    vlc = vlc.replace("Connection to <ip> closed.", "")
+    vlc = vlc.replace("\r\n", "")
+    logInfo("application check vlc", vlc)
+    if (vlc == "0") {
         VLC.postUpdate(OFF)
+    } else {
+        VLC.postUpdate(ON)
     }
 end
 ```
