@@ -58,28 +58,36 @@ rule "Application checker"
 when
     Time cron "0/1 * * ? * * *"
 then
-    if (executeCommandLine("/bin/ps","aux","|","/bin/grep","[f]irefox","|","/usr/bin/wc","-l") > 0) {
-        Firefox.postUpdate(ON)
-    } else {
+    var firefox = executeCommandLine("/bin/ps", "aux", "|", "/bin/grep", "[f]irefox", "|", "/usr/bin/wc", "-l")
+    logInfo("application check firefox", firefox)
+    if (firefox == "0") {
         Firefox.postUpdate(OFF)
+    } else {
+        Firefox.postUpdate(ON)
     }
     
-    if (executeCommandLine("/bin/ps","aux","|","/bin/grep","[V]irtualBox","|","/usr/bin/wc","-l") > 0) {
-        VirtualBox.postUpdate(ON)
-    } else {
+    var virtualbox = executeCommandLine("/bin/ps", "aux", "|", "/bin/grep", "[V]irtualBox", "|", "/usr/bin/wc", "-l")
+    logInfo("application check virtualbox", virtualbox)
+    if (virtualbox == "0") {
         VirtualBox.postUpdate(OFF)
+    } else {
+        VirtualBox.postUpdate(ON)
     }
     
-    if (executeCommandLine("/bin/ps","aux","|","/bin/grep","[k]odi","|","/usr/bin/wc","-l") > 0) {
-        Kodi.postUpdate(ON)
-    } else {
+    var kodi = executeCommandLine("/bin/ps","aux","|","/bin/grep","[k]odi","|","/usr/bin/wc","-l")
+    logInfo("application check kodi", kodi)
+    if (kodi == "0") {
         Kodi.postUpdate(OFF)
+    } else {
+        Kodi.postUpdate(ON)
     }
     
-    if (executeCommandLine("/bin/ps","aux","|","/bin/grep","[v]lc","|","/usr/bin/wc","-l") > 0) {
-        VLC.postUpdate(ON)
-    } else {
+    var vlc = executeCommandLine("/bin/ps","aux","|","/bin/grep","[v]lc","|","/usr/bin/wc","-l")
+    logInfo("application check vlc", vlc)
+    if (vlc == "0") {
         VLC.postUpdate(OFF)
+    } else {
+        VLC.postUpdate(ON)
     }
 end
 ```
