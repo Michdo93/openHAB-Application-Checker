@@ -59,35 +59,39 @@ when
     Time cron "0/1 * * ? * * *"
 then
     var firefox = executeCommandLine("/bin/ps", "aux", "|", "/bin/grep", "[f]irefox", "|", "/usr/bin/wc", "-l")
-    logInfo("application check firefox", firefox)
-    if (firefox == "0") {
-        Firefox.postUpdate(OFF)
-    } else {
+    firefox = Integer.parseInt(firefox)
+    logInfo("application check firefox", "the value is {}", firefox)
+    if (firefox > 0) {
         Firefox.postUpdate(ON)
+    } else {
+        Firefox.postUpdate(OFF)
     }
     
     var virtualbox = executeCommandLine("/bin/ps", "aux", "|", "/bin/grep", "[V]irtualBox", "|", "/usr/bin/wc", "-l")
-    logInfo("application check virtualbox", virtualbox)
-    if (virtualbox == "0") {
-        VirtualBox.postUpdate(OFF)
-    } else {
+    virtualbox = Integer.parseInt(virtualbox)
+    logInfo("application check virtualbox", "the value is {}", virtualbox)
+    if (virtualbox > 0) {
         VirtualBox.postUpdate(ON)
+    } else {
+        VirtualBox.postUpdate(OFF)
     }
     
     var kodi = executeCommandLine("/bin/ps","aux","|","/bin/grep","[k]odi","|","/usr/bin/wc","-l")
-    logInfo("application check kodi", kodi)
-    if (kodi == "0") {
-        Kodi.postUpdate(OFF)
-    } else {
+    kodi = Integer.parseInt(kodi)
+    logInfo("application check kodi", "the value is {}", kodi)
+    if (kodi > 0) {
         Kodi.postUpdate(ON)
+    } else {
+        Kodi.postUpdate(OFF)
     }
     
     var vlc = executeCommandLine("/bin/ps","aux","|","/bin/grep","[v]lc","|","/usr/bin/wc","-l")
-    logInfo("application check vlc", vlc)
-    if (vlc == "0") {
-        VLC.postUpdate(OFF)
-    } else {
+    vlc = Integer.parseInt(vlc)
+    logInfo("application check vlc", "the value is {}", vlc)
+    if (vlc > 0) {
         VLC.postUpdate(ON)
+    } else {
+        VLC.postUpdate(OFF)
     }
 end
 ```
@@ -102,41 +106,45 @@ then
     var firefox = executeCommandLine(Duration.ofSeconds(1), "/usr/bin/sshpass","-p","<password>","/usr/bin/ssh","-tt","-o","StrictHostKeyChecking=no","<user>@<ip>","ps","aux","|","/bin/grep","[f]irefox","|","/usr/bin/wc","-l","2>","/dev/null")
     firefox = firefox.replace("Connection to <ip> closed.", "")
     firefox = firefox.replace("\r\n", "")
-    logInfo("application check firefox", firefox)
-    if (firefox == "0") {
-        Firefox.postUpdate(OFF)
-    } else {
+    firefox = Integer.parseInt(firefox)
+    logInfo("application check firefox", "the value is {}", firefox)
+    if (firefox > 0) {
         Firefox.postUpdate(ON)
+    } else {
+        Firefox.postUpdate(OFF)
     }
 
     var virtualbox = executeCommandLine(Duration.ofSeconds(1), "/usr/bin/sshpass","-p","<password>","/usr/bin/ssh","-tt","-o","StrictHostKeyChecking=no","<user>@<ip>","ps","aux","|","/bin/grep","[V]irtualBox","|","/usr/bin/wc","-l","2>","/dev/null")
     virtualbox = virtualbox.replace("Connection to <ip> closed.", "")
     virtualbox = virtualbox.replace("\r\n", "")
-    logInfo("application check virtualbox", virtualbox)
-    if (virtualbox == "0") {
-        VirtualBox.postUpdate(OFF)
-    } else {
+    virtualbox = Integer.parseInt(virtualbox)
+    logInfo("application check virtualbox", "the value is {}", virtualbox)
+    if (virtualbox > 0) {
         VirtualBox.postUpdate(ON)
+    } else {
+        VirtualBox.postUpdate(OFF)
     }
     
     var kodi = executeCommandLine(Duration.ofSeconds(1), "/usr/bin/sshpass","-p","<password>","/usr/bin/ssh","-tt","-o","StrictHostKeyChecking=no","<user>@<ip>","ps","aux","|","/bin/grep","[k]odi","|","/usr/bin/wc","-l","2>","/dev/null")
-    kodi = firefox.replace("Connection to <ip> closed.", "")
-    kodi = firefox.replace("\r\n", "")
-    logInfo("application check firefox", firefox)
-    if (kodi == "0") {
-        kodi.postUpdate(OFF)
-    } else {
+    kodi = kodi.replace("Connection to <ip> closed.", "")
+    kodi = kodi.replace("\r\n", "")
+    kodi = Integer.parseInt(kodi)
+    logInfo("application check kodi", "the value is {}", kodi)
+    if (kodi > 0) {
         kodi.postUpdate(ON)
+    } else {
+        kodi.postUpdate(OFF)
     }
 
     var vlc = executeCommandLine(Duration.ofSeconds(1), "/usr/bin/sshpass","-p","<password>","/usr/bin/ssh","-tt","-o","StrictHostKeyChecking=no","<user>@<ip>","ps","aux","|","/bin/grep","[v]lc","|","/usr/bin/wc","-l","2>","/dev/null")
     vlc = vlc.replace("Connection to <ip> closed.", "")
     vlc = vlc.replace("\r\n", "")
-    logInfo("application check vlc", vlc)
-    if (vlc == "0") {
-        VLC.postUpdate(OFF)
-    } else {
+    vlc = Integer.parseInt(vlc)
+    logInfo("application check vlc", "the value is {}", vlc)
+    if (vlc > 0) {
         VLC.postUpdate(ON)
+    } else {
+        VLC.postUpdate(OFF)
     }
 end
 ```
