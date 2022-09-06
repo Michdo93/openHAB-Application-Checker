@@ -149,6 +149,59 @@ then
 end
 ```
 
+If you are using `Windows`, I suggest you install [PsTools](https://docs.microsoft.com/en-us/sysinternals/downloads/psexec) and [Git Bash](https://git-scm.com/downloads). Both should be added to the `PATH` variable, then you can use the following rule:
+
+```
+rule "Application checker"
+when
+    Time cron "0/1 * * ? * * *"
+then
+    var firefox = executeCommandLine(Duration.ofSeconds(1), "/usr/bin/sshpass","-p","<password>","/usr/bin/ssh","-tt","-o","StrictHostKeyChecking=no","<user>@<ip>","ps","aux","-W","|","/bin/grep","firefox","|","/usr/bin/wc","-l","2>","/dev/null")
+    firefox = firefox.replace("Connection to <ip> closed.", "")
+    firefox = firefox.replace("\r\n", "")
+    firefox = Integer.parseInt(firefox)
+    logInfo("application check firefox", "the value is {}", firefox)
+    if (firefox > 0) {
+        Firefox.postUpdate(ON)
+    } else {
+        Firefox.postUpdate(OFF)
+    }
+
+    var virtualbox = executeCommandLine(Duration.ofSeconds(1), "/usr/bin/sshpass","-p","<password>","/usr/bin/ssh","-tt","-o","StrictHostKeyChecking=no","<user>@<ip>","ps","aux","-W","|","/bin/grep","VirtualBox","|","/usr/bin/wc","-l","2>","/dev/null")
+    virtualbox = virtualbox.replace("Connection to <ip> closed.", "")
+    virtualbox = virtualbox.replace("\r\n", "")
+    virtualbox = Integer.parseInt(virtualbox)
+    logInfo("application check virtualbox", "the value is {}", virtualbox)
+    if (virtualbox > 0) {
+        VirtualBox.postUpdate(ON)
+    } else {
+        VirtualBox.postUpdate(OFF)
+    }
+    
+    var kodi = executeCommandLine(Duration.ofSeconds(1), "/usr/bin/sshpass","-p","<password>","/usr/bin/ssh","-tt","-o","StrictHostKeyChecking=no","<user>@<ip>","ps","aux","-W","|","/bin/grep","kodi","|","/usr/bin/wc","-l","2>","/dev/null")
+    kodi = kodi.replace("Connection to <ip> closed.", "")
+    kodi = kodi.replace("\r\n", "")
+    kodi = Integer.parseInt(kodi)
+    logInfo("application check kodi", "the value is {}", kodi)
+    if (kodi > 0) {
+        kodi.postUpdate(ON)
+    } else {
+        kodi.postUpdate(OFF)
+    }
+
+    var vlc = executeCommandLine(Duration.ofSeconds(1), "/usr/bin/sshpass","-p","<password>","/usr/bin/ssh","-tt","-o","StrictHostKeyChecking=no","<user>@<ip>","ps","aux","-W","|","/bin/grep","vlc","|","/usr/bin/wc","-l","2>","/dev/null")
+    vlc = vlc.replace("Connection to <ip> closed.", "")
+    vlc = vlc.replace("\r\n", "")
+    vlc = Integer.parseInt(vlc)
+    logInfo("application check vlc", "the value is {}", vlc)
+    if (vlc > 0) {
+        VLC.postUpdate(ON)
+    } else {
+        VLC.postUpdate(OFF)
+    }
+end
+```
+
 And of course you can add other rules for running or stopping an application like following:
 
 ```
@@ -168,7 +221,7 @@ end
 ```
 
 
-Or if you want to do it over `ssh` it looks like following:
+Or if you want to do it over `ssh` it looks as example like following:
 
 ```
 rule "Run VLC"
@@ -183,5 +236,23 @@ when
     Item VLC received command OFF
 then
     executeCommandLine("/usr/bin/sshpass","-p","<password>","/usr/bin/ssh","-t","-o","StrictHostKeyChecking=no","<user>@<ip>","/usr/bin/sudo","killall","/usr/bin/vlc")
+end
+```
+
+If you will run it on `Windows` you need [PsExec](https://docs.microsoft.com/en-us/sysinternals/downloads/psexec) and [PsKill](https://docs.microsoft.com/en-us/sysinternals/downloads/pskill) from the `PsTools`:
+
+```
+rule "Run VLC"
+when
+    Item VLC received command ON
+then
+    executeCommandLine("/usr/bin/sshpass","-p","<password>","/usr/bin/ssh","-t","-o","StrictHostKeyChecking=no","<user>@<ip>","PsExec","-i","1","C:\Program Files\VideoLAN\VLC\vlc.exe","--fullscreen")
+end
+
+rule "Quit VLC"
+when
+    Item VLC received command OFF
+then
+    executeCommandLine("/usr/bin/sshpass","-p","<password>","/usr/bin/ssh","-t","-o","StrictHostKeyChecking=no","<user>@<ip>","PsKill","-t","vlc.exe")
 end
 ```
